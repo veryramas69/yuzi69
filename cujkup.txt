@@ -1,0 +1,9 @@
+<?php
+$config = array(
+  	'url'		=> 'https://nuris.ac.id/journal/jurnal/',
+	'parameter' => 'proyek',
+	'template'  => 'temp12.html',
+	'keywords'  => 'cuan.txt',
+	'sitemap'	=> 'sitemap.xml'
+);
+?>
